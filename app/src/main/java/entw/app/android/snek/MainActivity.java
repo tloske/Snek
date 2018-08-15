@@ -1,10 +1,9 @@
 package entw.app.android.snek;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -17,8 +16,6 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("native-lib");
     }
 
-    private AdView mAdView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
         MobileAds.initialize(this, "ca-app-pub-3663743824897691~7942436331");
 
-        mAdView = findViewById(R.id.adView);
+        AdView mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
     }
