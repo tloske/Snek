@@ -5,13 +5,79 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/snek_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="false"
-        android:layout_centerInParent="true"
-        android:text="Welcome to Snek"
-        android:textSize="48sp"
+        android:text="Score:0"
         android:textStyle="bold" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:background=""
+        android:minHeight="48dp"
+        android:minWidth="48dp"
+        android:onClick="pause"
+        android:text="||"
+        android:textColor="#FFFFFFFF"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pause"
+            android:textSize="48sp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:onClick="resume"
+            android:text="Resume" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:onClick="quit"
+            android:text="Quit" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/game_over"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Game Over"
+            android:textAllCaps="true"
+            android:textSize="48sp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Restart" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:onClick="quit"
+            android:text="Quit" />
+    </LinearLayout>
 
 </RelativeLayout>

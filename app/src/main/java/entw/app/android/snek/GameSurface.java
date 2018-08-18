@@ -2,54 +2,50 @@ package entw.app.android.snek;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.view.MotionEvent;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GameSurface extends GLSurfaceView {
 
-    private GameRenderer mRender;
+    private Timer timer;
+    private TimerTask tTask;
 
-    public GameSurface(Context context) {
+    public GameSurface(Context context, final GameRenderer renderer, final SnekActivity activity) {
         super(context);
 
         setEGLContextClientVersion(3);
 
-        mRender = new GameRenderer();
-        setRenderer(mRender);
+        setRenderer(renderer);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+//        requestRender();
+
+        tTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (renderer.checkCollision()) {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.gameOver();
+                        }
+                    });
+                } else {
+                    requestRender();
+                }
+            }
+        };
+
+        timer = new Timer();
+        timer.schedule(tTask, 0, 30);
     }
 
-    private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
-    private float mPreviousX;
-    private float mPreviousY;
+    public void pause() {
+        timer.cancel();
+    }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent e) {
-
-        float x = e.getX();
-        float y = e.getY();
-
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_MOVE:
-
-                float dx = x - mPreviousX;
-                float dy = y - mPreviousY;
-
-                //reverse direction of rotation above the mid-line
-                if (y > getHeight() / 2) {
-                    dx = dx * -1;
-                }
-
-                //reverse direction of rotation to left of the mid-line
-                if (x < getWidth() / 2) {
-                    dy = dy * -1;
-                }
-
-                mRender.setAngle(mRender.getAngle() + ((dx + dy) * TOUCH_SCALE_FACTOR));
-                requestRender();
-        }
-
-        mPreviousX = x;
-        mPreviousY = y;
-        return true;
+    public void resume() {
+        timer = new Timer();
+        timer.schedule(tTask, 0, 30);
     }
 }
