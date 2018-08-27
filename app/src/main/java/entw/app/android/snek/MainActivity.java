@@ -28,11 +28,16 @@ public class MainActivity extends AppCompatActivity {
         mAdView.loadAd(adRequest);
     }
 
-    public void startGame(View view) {
-
-        Intent intent = new Intent(this, SnekActivity.class);
+    public void startGameCanvas(View view) {
+        SnakeActivity.setOpenGL(false);
+        Intent intent = new Intent(this, SnakeActivity.class);
         startActivity(intent);
+    }
 
+    public void startGameOpenGL(View view) {
+        SnakeActivity.setOpenGL(true);
+        Intent intent = new Intent(this, SnakeActivity.class);
+        startActivity(intent);
     }
 
     public void optionsButton(View view) {

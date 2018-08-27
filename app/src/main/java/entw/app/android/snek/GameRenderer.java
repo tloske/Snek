@@ -3,38 +3,31 @@ package entw.app.android.snek;
 import android.opengl.GLES31;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class GameRenderer implements GLSurfaceView.Renderer {
 
-    private Square mSquare;
+    private ArrayList<Square> squares;
     //mMVPMatrix is an abbreviation for "Model View Projection Matrix"
     private final float[] mMVPMatrix = new float[16];
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
-    private Food mFood;
-    private ArrayList<Obstacle> mObstacles;
     private float[] mRotationMatrix = new float[16];
     private float[] mTranslationMatrix = new float[16];
-    private float[] mMovement = {0.0f, 0.0f, 0.0f};
+    private boolean finished = true;
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
         //Set the background frame color
         GLES31.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        //initialize a square
-        mSquare = new Square(new float[]{0.0f, 0.0f, 0.0f});
-
-        float[] pos = new float[]{randNr(), randNr(), 0.0f};
-        Log.d("DEBUG", Arrays.toString(pos));
-        mFood = new Food(pos);
+        squares = new ArrayList<>();
+//        square = new Square(new float[]{0.0f, 0.0f, 0.0f}, 0);
+//        square2 = new Square(new float[]{1.0f, 0.0f, 0.0f}, 1);
 
         Matrix.setIdentityM(mTranslationMatrix, 0);
         Matrix.translateM(mTranslationMatrix, 0, 0.0f, 0.0f, 0.0f);
@@ -45,7 +38,6 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl10, int i, int i1) {
         GLES31.glViewport(0, 0, i, i1);
 
-        Log.d("DEBUG", "i:" + i + " i1" + i1);
         float ratio = (float) i / i1;
 
         //this projection matrix is applied to object coordinates
@@ -56,8 +48,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl10) {
-        float[] scratch = new float[16];
-
+        finished = false;
         //Redraw background color
         GLES31.glClear(GLES31.GL_COLOR_BUFFER_BIT);
 
@@ -67,26 +58,25 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         //Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
-        mFood.draw(mMVPMatrix);
-//        for(Obstacle obstacle:mObstacles){
-//            obstacle.draw(mMVPMatrix);
-//        }
+        for (Square square : squares)
+            square.draw(mMVPMatrix);
 
-        //Combine the rotation matrix with the projection and camera view
-        Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+        finished = true;
 
-        //Creates the translation Matrix to e used on the Snek
-        Matrix.translateM(mTranslationMatrix, 0, mMovement[0], mMovement[1], mMovement[2]);
+//        //Combine the rotation matrix with the projection and camera view
+//        Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+//
+//        //Creates the translation Matrix to e used on the Snek
+//        Matrix.translateM(mTranslationMatrix, 0, mMovement[0], mMovement[1], mMovement[2]);
+//
+//        Matrix.multiplyMM(mMVPMatrix, 0, mTranslationMatrix, 0, scratch, 0);
+//
+//        //Draw Shape
+//        mSnek.draw(mMVPMatrix);
+    }
 
-        //update the Position of the object
-        float[] position = mSquare.getPosition();
-        float[] newPosition = {position[0] + mMovement[0], position[1] + mMovement[1], position[2] + mMovement[2]};
-        mSquare.setPosition(newPosition);
-
-        Matrix.multiplyMM(mMVPMatrix, 0, mTranslationMatrix, 0, scratch, 0);
-
-        //Draw Shape
-        mSquare.draw(mMVPMatrix);
+    public boolean finished() {
+        return finished;
     }
 
     public static int loadShader(int type, String shaderCode) {
@@ -102,33 +92,19 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         return shader;
     }
 
-    public void setRotation(float[] rotation) {
-        mRotationMatrix = rotation;
+    public void addSquares(ArrayList<Square> squares) {
+        this.squares = squares;
     }
 
-    public void setTranslation(float[] movement) {
-        mMovement = movement;
+
+    public void addSquare(float x, float y, int type) {
+        if (squares == null)
+            squares = new ArrayList<>();
+
+        squares.add(new Square(new float[]{x, y, 0.0f}, type));
     }
 
-    //Generates a random Number between -0.9 and 0.9
-    private float randNr() {
-        float result;
-
-        float step = 0.2f;
-        float lower = 0.1f;
-        float upper = 2.0f;
-        float rand = (float) (lower + Math.random() * (upper - lower));
-        result = rand - rand % step + lower - 1.0f;
-        return result;
-    }
-
-    public boolean checkCollision() {
-//        try {
-//            return Arrays.equals(mSquare.getPosition(), mFood.getPosition());
-//        } catch (Exception e) {
-//            return false;
-//        }
-        return true;
-//        return false;
-    }
+//    public void setTranslation(float[] movement) {
+//        mMovement = movement;
+//    }
 }

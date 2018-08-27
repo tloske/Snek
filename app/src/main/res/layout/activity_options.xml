@@ -24,21 +24,112 @@
     </Toolbar>
 
     <TextView
-        android:id="@+id/options_text_view"
+        android:id="@+id/walls_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Options"
-        app:layout_constraintBottom_toBottomOf="@id/checkbox"
+        android:layout_marginTop="16dp"
+        android:text="Walls"
+        android:textSize="24dp"
+        app:layout_constraintBottom_toBottomOf="@id/walls_checkbox"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintTop_toTopOf="@id/checkbox" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <CheckBox
-        android:id="@+id/checkbox"
+        android:id="@+id/walls_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintRight_toLeftOf="@id/options_text_view"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        app:layout_constraintRight_toLeftOf="@id/walls_text_view"
+        app:layout_constraintTop_toTopOf="@id/walls_text_view" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+
+        android:onClick="decreaseObstacles"
+        android:text="-"
+        app:layout_constraintRight_toLeftOf="@id/obstacles_text_view"
+        app:layout_constraintTop_toTopOf="@id/obstacles_text_view" />
+
+    <TextView
+        android:id="@+id/obstacles_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Obstacles: 0"
+        android:textSize="24sp"
+        app:layout_constraintLeft_toLeftOf="@id/walls_text_view"
+        app:layout_constraintRight_toRightOf="@id/walls_text_view"
+        app:layout_constraintTop_toBottomOf="@id/walls_text_view" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:onClick="increaseObstacles"
+        android:text="+"
+        app:layout_constraintLeft_toRightOf="@id/obstacles_text_view"
+        app:layout_constraintTop_toTopOf="@id/obstacles_text_view" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:onClick="decreaseSpeed"
+        android:text="-"
+        app:layout_constraintRight_toLeftOf="@id/speed_text_view"
+        app:layout_constraintTop_toTopOf="@id/speed_text_view" />
+
+    <TextView
+        android:id="@+id/speed_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Speed: 0"
+        android:textSize="24sp"
+        app:layout_constraintLeft_toLeftOf="@id/obstacles_text_view"
+        app:layout_constraintRight_toRightOf="@id/obstacles_text_view"
+        app:layout_constraintTop_toBottomOf="@id/obstacles_text_view" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:onClick="increaseSpeed"
+        android:text="+"
+        app:layout_constraintLeft_toRightOf="@id/speed_text_view"
+        app:layout_constraintTop_toTopOf="@id/speed_text_view" />
+
+
+    <Button
+        android:id="@+id/apply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="apply"
+        android:text="apply"
+        android:textSize="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/cancel"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="cancel"
+        android:text="cancel"
+        android:textSize="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/apply" />
 
 </android.support.constraint.ConstraintLayout>

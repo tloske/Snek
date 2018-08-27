@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/snek_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Score:0"
         android:textStyle="bold" />
 
     <Button
+        android:id="@+id/pause_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:background=""
+        android:background="#00FFFFFF"
         android:minHeight="48dp"
         android:minWidth="48dp"
         android:onClick="pause"
@@ -33,6 +36,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:text="Pause"
             android:textSize="48sp" />
 
@@ -49,6 +53,13 @@
             android:layout_gravity="center"
             android:onClick="quit"
             android:text="Quit" />
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/pause_ad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:adSize="BANNER"
+            app:adUnitId="ca-app-pub-3940256099942544/6300978111" />
     </LinearLayout>
 
     <LinearLayout
@@ -62,6 +73,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:text="Game Over"
             android:textAllCaps="true"
             android:textSize="48sp" />
@@ -70,6 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:onClick="restart"
             android:text="Restart" />
 
         <Button
@@ -78,6 +91,13 @@
             android:layout_gravity="center"
             android:onClick="quit"
             android:text="Quit" />
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/game_over_ad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:adSize="BANNER"
+            app:adUnitId="ca-app-pub-3940256099942544/6300978111" />
     </LinearLayout>
 
 </RelativeLayout>

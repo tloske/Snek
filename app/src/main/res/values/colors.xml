@@ -3,4 +3,8 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorBackGround">#FFFFD600</color>
+    <color name="colorSnake">#FF0000FF</color>
+    <color name="colorObstacle">#FFFF0000</color>
+    <color name="colorFood">#FF00FF00</color>
 </resources>
