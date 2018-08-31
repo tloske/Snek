@@ -22,6 +22,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import entw.app.android.snek.OpenGL.GameRenderer;
+import entw.app.android.snek.OpenGL.GameSurface;
+
 public class SnakeActivity extends AppCompatActivity implements GestureDetector.OnGestureListener {
 
     private static boolean walls = true;
@@ -78,8 +81,9 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
         RelativeLayout rl = findViewById(R.id.snek_layout);
 
         if (openGL) {
-            mRenderer = new GameRenderer();
+            mRenderer = new GameRenderer(this, obstacleCount, walls);
             mGLView = new GameSurface(this, mRenderer);
+            mGLView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
             rl.addView(mGLView, 0);
         } else {
             mSnakeView = new SnakeView(this, (int) (getRatio() * 10.0f));
@@ -107,7 +111,7 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
                 if (!mPaused)
                     count++;
             }
-        }, 0, 10, TimeUnit.MILLISECONDS);
+        }, 500, 10, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -171,7 +175,6 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
         }
 
         mModel.setDirection(movement);
-//        mRenderer.setTranslation(movement);
         return true;
     }
 
@@ -226,7 +229,7 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
         findViewById(R.id.game_over).setVisibility(View.VISIBLE);
 
         findViewById(R.id.pause_button).setVisibility(View.GONE);
-        mPaused = true;
+        future.cancel(true);
     }
 
     /**
@@ -257,7 +260,7 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
     /**
      * Updates the Score in the ui
      *
-     * @param score
+     * @param score the new Score
      */
     public void updateScore(int score) {
         TextView tv = findViewById(R.id.score);
@@ -268,8 +271,10 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
         return (float) getResources().getDisplayMetrics().widthPixels / (float) getResources().getDisplayMetrics().heightPixels;
     }
 
+    /**
+     * The loop that gets called when the game is started ind canvas mode
+     */
     public void canvasLoop() {
-
         mModel.move();
         runOnUiThread(new Runnable() {
             @Override
@@ -303,42 +308,51 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
 
     }
 
+    private int score;
+
     //Calls the Renderer and updates the ui
     public void openGLLoop() {
+        mModel.move();
 
-        mGLView.queueEvent(new Runnable() {
-
-            @Override
-            public void run() {
-                ArrayList<Square> squares = new ArrayList<>();
-                mModel.move();
-                int type = 0;
-                float[] coords = mModel.OpenGLCoords(mModel.getPos());
-//                mRenderer.addSquare(coords[0], coords[1], type);
-                squares.add(new Square(new float[]{coords[0], coords[1], 0.0f}, type));
-                int[][] board = mModel.getBoard();
-                for (int i = 0; i < board.length; i++) {
-                    for (int j = 0; j < board[i].length; j++) {
-                        type = board[i][j];
-                        if (type > 0) {
-                            coords = mModel.OpenGLCoords(new int[]{i, j});
-//                            mRenderer.addSquare(coords[0], coords[1], type);
-                            squares.add(new Square(new float[]{coords[0], coords[1], 0.0f}, type));
-                        }
-                    }
-                }
-                mRenderer.addSquares(squares);
-                mGLView.requestRender();
-            }
-        });
-
-
+        final boolean[] addBody = {false};
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (mModel.checkCollision())
                     gameOver();
-                updateScore(mModel.getScore());
+                if (score != mModel.getScore()) {
+                    score = mModel.getScore();
+                    updateScore(score);
+                    addBody[0] = true;
+                }
+            }
+        });
+
+        mGLView.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                float[] pos;
+                ArrayList<float[]> coords = new ArrayList<>();
+                int[][] board = mModel.getBoard();
+                for (int i = 0; i < board.length; i++) {
+                    for (int j = 0; j < board[i].length; j++) {
+                        if (board[i][j] == 1) {
+                            pos = mModel.OpenGLCoords(new int[]{i, j});
+                            mRenderer.move(pos, 1);
+                        }
+                        if (board[i][j] == 2) {
+                            coords.add(mModel.OpenGLCoords(new int[]{i, j}));
+                        }
+                    }
+                }
+                mRenderer.move(coords, 2);
+                coords = mModel.OpenGLCoords(mModel.getPrevPos());
+                mRenderer.move(coords, 0);
+                pos = mModel.OpenGLCoords(mModel.getPos());
+                if (addBody[0]) {
+                    mRenderer.addToBody(pos);
+                }
+                mRenderer.move(pos, 0);
             }
         });
     }

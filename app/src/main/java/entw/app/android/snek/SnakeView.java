@@ -28,6 +28,7 @@ public class SnakeView extends android.support.v7.widget.AppCompatImageView {
 
         mPaint = new Paint();
 
+        mBitmap = Bitmap.createBitmap(getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().heightPixels, Bitmap.Config.ARGB_8888);
         mColorBackground = ResourcesCompat.getColor(getResources(), R.color.colorBackGround, null);
         mColorSnake = ResourcesCompat.getColor(getResources(), R.color.colorSnake, null);
         mColorFood = ResourcesCompat.getColor(getResources(), R.color.colorFood, null);
@@ -43,12 +44,18 @@ public class SnakeView extends android.support.v7.widget.AppCompatImageView {
         super(context, attrs, defStyleAttr);
     }
 
+    /**
+     * Draws the background of the game
+     */
     public void drawBackGround() {
         mBitmap = Bitmap.createBitmap((mRatio * 2 + 1) * 4, 21 * 4, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawColor(mColorBackground);
     }
 
+    /**
+     * Draws the walls at the edge of the area
+     */
     public void drawWalls() {
         //Draws a Grid
         int bitWidth = (mRatio * 2 + 1) * 4 - 1;
@@ -102,6 +109,10 @@ public class SnakeView extends android.support.v7.widget.AppCompatImageView {
         mCanvas.drawRect(rect, mPaint);
     }
 
+    /**
+     * Creates a scaled bitmap using the width and height of the SnakeView and invalidates the View
+     * so that the onDraw method will be called
+     */
     public void draw() {
 
         int height = getHeight();

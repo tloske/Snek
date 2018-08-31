@@ -1,6 +1,7 @@
 package entw.app.android.snek;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class GameModel {
@@ -10,7 +11,7 @@ public class GameModel {
     private int mScore;
     private int[] direction = new int[]{0, 0};
     private int mObstacleCount;
-    private boolean mWalls = true;
+    private boolean mWalls;
 
     GameModel(int ratio, int obstacles, boolean walls) {
         mScore = 0;
@@ -113,19 +114,21 @@ public class GameModel {
         return mPrevPos;
     }
 
-    public void setWalls(boolean walls) {
-        mWalls = walls;
-    }
-
-    public void setObstacleCount(int obstacleCount) {
-        mObstacleCount = obstacleCount;
-    }
-
     public float[] OpenGLCoords(int coords[]) {
         float[] pos = new float[3];
         pos[0] = (coords[0] - (mGameBoard.length / 2)) / 10.0f;
         pos[1] = (coords[1] - (mGameBoard[0].length / 2)) / 10.0f;
         pos[2] = 0.0f;
         return pos;
+    }
+
+    public ArrayList<float[]> OpenGLCoords(ArrayDeque<int[]> positions) {
+        ArrayList<float[]> newList = new ArrayList<>();
+
+        for (int[] pos : positions) {
+            newList.add(OpenGLCoords(pos));
+        }
+
+        return newList;
     }
 }

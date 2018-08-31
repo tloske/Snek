@@ -1,10 +1,11 @@
-package entw.app.android.snek;
+package entw.app.android.snek.OpenGL;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 
 
 public class GameSurface extends GLSurfaceView {
+
 
     GameSurface(Context context) {
         super(context);
@@ -16,6 +17,6 @@ public class GameSurface extends GLSurfaceView {
         setEGLContextClientVersion(3);
 
         setRenderer(renderer);
-        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+//        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 }

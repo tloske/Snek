@@ -25,7 +25,7 @@ public class OptionsActivity extends AppCompatActivity {
 
         walls = SnakeActivity.getWalls();
         obstacles = SnakeActivity.getObstacleCount();
-        speed = (100 - SnakeActivity.getDelay()) / 10;
+        speed = ((100 - SnakeActivity.getDelay()) / 10) + 1;
 
         cbWalls = findViewById(R.id.walls_checkbox);
         cbWalls.setChecked(walls);
@@ -50,21 +50,21 @@ public class OptionsActivity extends AppCompatActivity {
     }
 
     public void increaseSpeed(View view) {
-        if (speed <= 10) {
+        if (speed < 10) {
             speed++;
             tvSpeed.setText("Speed: " + speed);
         }
     }
 
     public void decreaseSpeed(View view) {
-        if (speed >= 0) {
+        if (speed > 1) {
             speed--;
             tvSpeed.setText("Speed: " + speed);
         }
     }
 
     public void apply(View view) {
-        SnakeActivity.setDelay(100 - speed * 10);
+        SnakeActivity.setDelay(100 - (speed - 1) * 10);
         SnakeActivity.setObstacleCount(obstacles);
         SnakeActivity.setWalls(cbWalls.isChecked());
     }
