@@ -15,6 +15,13 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -31,6 +38,8 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
     private static int obstacleCount;
     private static int delay = 100;
     private static boolean openGL = false;
+    private static int mHighScore = 0;
+    private static int colorID = R.array.colorScheme1;
     int movement[] = new int[2];
     private GameSurface mGLView;
     private GestureDetectorCompat mDetector;
@@ -41,6 +50,8 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
     private boolean mPaused = false;
     private SnakeView mSnakeView;
     private int count;
+    final boolean[] addBody = {false};
+    private Save save;
 
     public static boolean getWalls() {
         return SnakeActivity.walls;
@@ -70,48 +81,35 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
         SnakeActivity.openGL = openGL;
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_snake);
+    private int score;
 
-        mDetector = new GestureDetectorCompat(this, this);
-        mModel = new GameModel((int) (getRatio() * 10.0f), obstacleCount, walls);
+    public static int getColorID() {
+        return colorID;
+    }
 
-        RelativeLayout rl = findViewById(R.id.snek_layout);
+    public static void setColorID(int cID) {
+        SnakeActivity.colorID = cID;
+    }
 
-        if (openGL) {
-            mRenderer = new GameRenderer(this, obstacleCount, walls);
-            mGLView = new GameSurface(this, mRenderer);
-            mGLView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-            rl.addView(mGLView, 0);
-        } else {
-            mSnakeView = new SnakeView(this, (int) (getRatio() * 10.0f));
-            mSnakeView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-            mSnakeView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-            rl.addView(mSnakeView, 0);
+    public static void saveGame(Serializable object, File dir, String filename) throws IOException {
+        File file = new File(dir, filename);
+        if (!file.exists()) {
+            file.createNewFile();
         }
+        ObjectOutputStream objstream = new ObjectOutputStream(new FileOutputStream(file));
+        objstream.writeObject(object);
+        objstream.close();
+    }
 
-        MobileAds.initialize(this, "ca-app-pub-3663743824897691~7942436331");
-
-        count = 100;
-        //Scheduled Executor that runs every 10ms
-        scheduledExecutorService = Executors.newScheduledThreadPool(1);
-        future = scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                if (count % delay == 0) {
-                    if (openGL) {
-                        openGLLoop();
-                    } else {
-                        canvasLoop();
-                    }
-                    count = 0;
-                }
-                if (!mPaused)
-                    count++;
-            }
-        }, 500, 10, TimeUnit.MILLISECONDS);
+    public static Save loadSave(File dir, String filename) throws ClassNotFoundException, IOException {
+        File file = new File(dir, filename);
+        if (file.exists()) {
+            ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(file));
+            Object object = objstream.readObject();
+            objstream.close();
+            return (Save) object;
+        }
+        return new Save();
     }
 
     @Override
@@ -217,19 +215,58 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
         mPaused = true;
     }
 
-    /**
-     * Gets called when the Snake hits an obstacle.
-     * Pauses the Game and sets the GameOver screen to visible
-     */
-    public void gameOver() {
-        AdView mAdView = findViewById(R.id.game_over_ad);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_snake);
 
-        findViewById(R.id.game_over).setVisibility(View.VISIBLE);
+        try {
+            save = loadSave(getFilesDir(), "snake.save");
+            mHighScore = save.getHighScore();
+            walls = save.getWalls();
+            obstacleCount = save.getObstacleCount();
+            delay = save.getSpeed();
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
 
-        findViewById(R.id.pause_button).setVisibility(View.GONE);
-        future.cancel(true);
+        mDetector = new GestureDetectorCompat(this, this);
+        mModel = new GameModel((int) (getRatio() * 10.0f), obstacleCount, walls);
+
+        RelativeLayout rl = findViewById(R.id.snek_layout);
+        int[] colors = getResources().getIntArray(colorID);
+        if (openGL) {
+            mRenderer = new GameRenderer(this, obstacleCount, walls, colors);
+            mGLView = new GameSurface(this, mRenderer);
+            mGLView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+            rl.addView(mGLView, 0);
+        } else {
+            mSnakeView = new SnakeView(this, (int) (getRatio() * 10.0f), colors);
+            mSnakeView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+            mSnakeView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+            rl.addView(mSnakeView, 0);
+        }
+
+        MobileAds.initialize(this, "ca-app-pub-3663743824897691~7942436331");
+
+        count = 100;
+        //Scheduled Executor that runs every 10ms
+        scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        future = scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                if (count % delay == 0) {
+                    if (openGL) {
+                        openGLLoop();
+                    } else {
+                        canvasLoop();
+                    }
+                    count = 0;
+                }
+                if (!mPaused)
+                    count++;
+            }
+        }, 500, 10, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -246,15 +283,28 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
     }
 
     /**
-     * Gets called when the user hits the quit button in the GameOverScreen or the PauseMenu
-     * Stops GameLoop and starts a new MainActivity
-     *
-     * @param view
+     * Gets called when the Snake hits an obstacle.
+     * Pauses the Game and sets the GameOver screen to visible
      */
-    public void quit(View view) {
-        future.cancel(false);
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+    public void gameOver() {
+        AdView mAdView = findViewById(R.id.game_over_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
+        findViewById(R.id.game_over).setVisibility(View.VISIBLE);
+
+        findViewById(R.id.pause_button).setVisibility(View.GONE);
+        future.cancel(true);
+
+        if (score > mHighScore) {
+            mHighScore = score;
+            try {
+                save.setHighScore(mHighScore);
+                saveGame(save, getFilesDir(), "snake.save");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -272,6 +322,27 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
     }
 
     /**
+     * Gets called when the user hits the quit button in the GameOverScreen or the PauseMenu
+     * Stops GameLoop and starts a new MainActivity
+     *
+     * @param view
+     */
+    public void quit(View view) {
+        future.cancel(false);
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        if (score > mHighScore) {
+            mHighScore = score;
+            try {
+                save.setHighScore(mHighScore);
+                saveGame(save, getFilesDir(), "snake.save");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
      * The loop that gets called when the game is started ind canvas mode
      */
     public void canvasLoop() {
@@ -281,7 +352,13 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
             public void run() {
                 if (mModel.checkCollision())
                     gameOver();
-                updateScore(mModel.getScore());
+                if (score != mModel.getScore()) {
+                    score = mModel.getScore();
+                    updateScore(score);
+                    if (score % 10 == 0 && delay > 10) {
+                        delay -= 5;
+                    }
+                }
             }
         });
 
@@ -308,13 +385,10 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
 
     }
 
-    private int score;
-
     //Calls the Renderer and updates the ui
     public void openGLLoop() {
         mModel.move();
 
-        final boolean[] addBody = {false};
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -324,6 +398,9 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
                     score = mModel.getScore();
                     updateScore(score);
                     addBody[0] = true;
+                    if (score % 10 == 0 && delay > 10) {
+                        delay -= 5;
+                    }
                 }
             }
         });
@@ -351,6 +428,7 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
                 pos = mModel.OpenGLCoords(mModel.getPos());
                 if (addBody[0]) {
                     mRenderer.addToBody(pos);
+                    addBody[0] = false;
                 }
                 mRenderer.move(pos, 0);
             }

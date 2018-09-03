@@ -6,10 +6,11 @@ import android.opengl.Matrix;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 public class Cube {
     private float[] prevPosition = new float[3];
+    //number of coordinates per vertex in this array
+    private static final int faces = 12;
 
     private float[] mModelMatrix = new float[16];
 
@@ -17,134 +18,222 @@ public class Cube {
     private int mProgramHandle;
     private int mPositionHandle;
     private int mColorHandle;
+    private static final int VERTICES_PER_FACE = 3;
+    private static final int normalStride = 3 * 4;
+    private final float[] mLightPos = new float[]{0.0f, 0.0f, 0.0f, 1.0f};
 
     private FloatBuffer vertexBuffer;
-    private ShortBuffer drawListBuffer;
     private FloatBuffer colorBuffer;
-
-    //number of coordinates per vertex in this array
+    private int mMVMatrixHandle;
+    private int mNormalHandle;
+    private int mLightPosHandle;
     private static final int COORDS_PER_VERTEX = 3;
     private static final float size = 0.05f;
     private static final int vertexStride = COORDS_PER_VERTEX * 4;
     private static final int colorStride = 4 * 4;   //4 Values * 4 Byte
+    private FloatBuffer normalBuffer;
+    private float color[] = new float[faces * VERTICES_PER_FACE * 4];
 
-    private short drawOrder[] = {0, 1, 2, 0, 2, 3,  //Top
-            0, 4, 5, 0, 5, 1,   //Side
-            3, 7, 4, 3, 4, 0,
-            1, 5, 6, 1, 6, 2,
-            2, 6, 7, 2, 7, 3,
-            4, 5, 6, 4, 6, 7};  //Bottom
+    Cube(float[] position, int type, final String vertexShader, final String fragmentShader, final float[] rgba) {
 
-    private float color[] = {0.63671875f, 0.76953125f, 0.22265625f, 1.0f};
-
-
-    Cube(float[] position, int type, final String vertexShader, final String fragmentShader) {
         float[] cubeCoords = new float[]{
-                -size + position[0], size + position[1], size,      //Top left
-                -size + position[0], -size + position[1], size,     //Bottom left
-                size + position[0], -size + position[1], size,      //Bottom right
-                size + position[0], size + position[1], size,       //Top Right
-                -size + position[0], size + position[1], -size,     //Top left back
-                -size + position[0], -size + position[1], -size,    //Bottom left back
-                size + position[0], -size + position[1], -size,     //Bottom right back
-                size + position[0], size + position[1], -size};     //Top right back
+                // Front
+                -size + position[0], size + position[1], size,
+                -size + position[0], -size + position[1], size,
+                size + position[0], -size + position[1], size,
+                -size + position[0], size + position[1], size,
+                size + position[0], -size + position[1], size,
+                size + position[0], size + position[1], size,
 
-        switch (type) {
-            case 0: //Snake and Body
-                color = new float[]{0.0f, 1.0f, 0.0f, 0.0f,         //Top left
-                        0.0f, 1.0f, 0.0f, 0.0f,                     //Bottom left
-                        0.0f, 1.0f, 0.0f, 0.0f,                     //Bottom right
-                        0.0f, 1.0f, 0.0f, 0.0f,                     //Top right
-                        0.0f, 1.0f, 0.0f, 1.0f,
-                        0.0f, 1.0f, 0.0f, 1.0f,
-                        0.0f, 1.0f, 0.0f, 1.0f,
-                        0.0f, 1.0f, 0.0f, 1.0f};
-                break;
-            case 1: //Food
-                color = new float[]{0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f, 1.0f};
-                break;
-            case 2: //Obstacles and Walls
-                color = new float[]{1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f};
-                break;
-            case 3:
-                color = new float[]{0.5f, 0.5f, 0.5f, 1.0f,
-                        0.5f, 0.5f, 0.5f, 1.0f,
-                        0.5f, 0.5f, 0.5f, 1.0f,
-                        0.5f, 0.5f, 0.5f, 1.0f,
-                        0.5f, 0.5f, 0.5f, 1.0f,
-                        0.5f, 0.5f, 0.5f, 1.0f,
-                        0.5f, 0.5f, 0.5f, 1.0f,
-                        0.5f, 0.5f, 0.5f, 1.0f,
-                };
-            default:
-                break;
+                // Right
+                -size + position[0], size + position[1], size,
+                -size + position[0], size + position[1], -size,
+                -size + position[0], -size + position[1], -size,
+                -size + position[0], size + position[1], size,
+                -size + position[0], -size + position[1], -size,
+                -size + position[0], -size + position[1], size,
+
+                // Top
+                size + position[0], size + position[1], size,
+                size + position[0], size + position[1], -size,
+                -size + position[0], size + position[1], -size,
+                size + position[0], size + position[1], size,
+                -size + position[0], size + position[1], -size,
+                -size + position[0], size + position[1], size,
+
+                // Bottom
+                -size + position[0], -size + position[1], size,
+                -size + position[0], -size + position[1], -size,
+                size + position[0], -size + position[1], -size,
+                -size + position[0], -size + position[1], size,
+                size + position[0], -size + position[1], -size,
+                size + position[0], -size + position[1], size,
+
+                // Left
+                size + position[0], -size + position[1], size,
+                size + position[0], -size + position[1], -size,
+                size + position[0], size + position[1], -size,
+                size + position[0], -size + position[1], size,
+                size + position[0], size + position[1], -size,
+                size + position[0], size + position[1], size,
+
+                // Back
+                -size + position[0], size + position[1], -size,
+                -size + position[0], -size + position[1], -size,
+                size + position[0], -size + position[1], -size,
+                -size + position[0], size + position[1], -size,
+                size + position[0], -size + position[1], -size,
+                size + position[0], size + position[1], -size
+        };
+
+        for (int i = 0; i < color.length; i += 4) {
+            color[i] = rgba[0];
+            color[i + 1] = rgba[1];
+            color[i + 2] = rgba[2];
+            color[i + 3] = rgba[3];
         }
+//        switch (type) {
+//            case 0: //Snake and Body
+//                for (int i = 0; i < color.length; i += 4) {
+//                    color[i] = 0.0f;        // Red value of each vertex
+//                    color[i + 1] = 1.0f;    // Green value of each vertex
+//                    color[i + 2] = 0.0f;    // Blue value of each vertex
+//                    color[i + 3] = 1.0f;
+//                }
+//                break;
+//            case 1: //Food
+//                for (int i = 0; i < color.length; i += 4) {
+//                    color[i] = 0.0f;
+//                    color[i + 1] = 0.0f;
+//                    color[i + 2] = 1.0f;
+//                    color[i + 3] = 1.0f;
+//                }
+//                break;
+//            case 2: //Obstacles and Walls
+//                for (int i = 0; i < color.length; i += 4) {
+//                    color[i] = 1.0f;
+//                    color[i + 1] = 0.0f;
+//                    color[i + 2] = 0.0f;
+//                    color[i + 3] = 1.0f;
+//                }
+//                break;
+//            case 3: //Ground
+//                for (int i = 0; i < color.length; i += 4) {
+//                    color[i] = 1.0f;
+//                    color[i + 1] = 1.0f;
+//                    color[i + 2] = 0.0f;
+//                    color[i + 3] = 1.0f;
+//                }
+//            default:
+//                break;
+//        }
 
+        float[] normals = new float[]{
+                // Front
+                0.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f,
+
+                // Right
+                1.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f,
+
+                // Top
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+
+                // Bottom
+                0.0f, -1.0f, 0.0f,
+                0.0f, -1.0f, 0.0f,
+                0.0f, -1.0f, 0.0f,
+                0.0f, -1.0f, 0.0f,
+                0.0f, -1.0f, 0.0f,
+                0.0f, -1.0f, 0.0f,
+
+                // Left
+                -1.0f, 0.0f, 0.0f,
+                -1.0f, 0.0f, 0.0f,
+                -1.0f, 0.0f, 0.0f,
+                -1.0f, 0.0f, 0.0f,
+                -1.0f, 0.0f, 0.0f,
+                -1.0f, 0.0f, 0.0f,
+
+                // Back
+                0.0f, 0.0f, -1.0f,
+                0.0f, 0.0f, -1.0f,
+                0.0f, 0.0f, -1.0f,
+                0.0f, 0.0f, -1.0f,
+                0.0f, 0.0f, -1.0f,
+                0.0f, 0.0f, -1.0f
+        };
 
         //initialize vertex byte buffer for shape coordinates
         vertexBuffer = ByteBuffer.allocateDirect(cubeCoords.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        vertexBuffer.put(cubeCoords);
-        vertexBuffer.position(0);
-
-        //initialize byte buffer for the draw list
-        drawListBuffer = ByteBuffer.allocateDirect(drawOrder.length * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
-        drawListBuffer.put(drawOrder);
-        drawListBuffer.position(0);
+        vertexBuffer.put(cubeCoords).position(0);
 
         // initialize byte buffer for the vertex color
         colorBuffer = ByteBuffer.allocateDirect(color.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        colorBuffer.put(color);
-        colorBuffer.position(0);
+        colorBuffer.put(color).position(0);
+
+        normalBuffer = ByteBuffer.allocateDirect(normals.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        normalBuffer.put(normals).position(0);
 
         int vertexShaderHandle = GameRenderer.compileShader(GLES31.GL_VERTEX_SHADER, vertexShader);
         int fragmentShaderHandle = GameRenderer.compileShader(GLES31.GL_FRAGMENT_SHADER, fragmentShader);
-        mProgramHandle = GameRenderer.createProgram(vertexShaderHandle, fragmentShaderHandle);
+        mProgramHandle = GameRenderer.createProgram(vertexShaderHandle, fragmentShaderHandle, new String[]{"aPosition", "aColor", "aNormal"});
+
+        mMVPMatrixHandle = GLES31.glGetUniformLocation(mProgramHandle, "uMVPMatrix");
+        mMVMatrixHandle = GLES31.glGetUniformLocation(mProgramHandle, "uMVMatrix");
+        mLightPosHandle = GLES31.glGetUniformLocation(mProgramHandle, "uLightPos");
+
+        mPositionHandle = GLES31.glGetAttribLocation(mProgramHandle, "aPosition");
+        mColorHandle = GLES31.glGetAttribLocation(mProgramHandle, "aColor");
+        mNormalHandle = GLES31.glGetAttribLocation(mProgramHandle, "aNormal");
 
         Matrix.setIdentityM(mModelMatrix, 0);
     }
 
 
-    public void draw(final float[] vpMatrix) {
+    public void draw(final float[] viewMatrix, final float[] projectionMatrix, final float[] lightPos) {
         float[] mvpMatrix = new float[16];
+
         GLES31.glUseProgram(mProgramHandle);
 
-        Matrix.multiplyMM(mvpMatrix, 0, vpMatrix, 0, mModelMatrix, 0);
-
-        mPositionHandle = GLES31.glGetAttribLocation(mProgramHandle, "aPosition");
-
+        vertexBuffer.position(0);
         GLES31.glEnableVertexAttribArray(mPositionHandle);
-
         GLES31.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES31.GL_FLOAT, false, vertexStride, vertexBuffer);
 
-        mColorHandle = GLES31.glGetAttribLocation(mProgramHandle, "aColor");
-
+        colorBuffer.position(0);
         GLES31.glEnableVertexAttribArray(mColorHandle);
-
         GLES31.glVertexAttribPointer(mColorHandle, 4, GLES31.GL_FLOAT, false, colorStride, colorBuffer);
 
-        GLES31.glDrawElements(GLES31.GL_TRIANGLES, drawOrder.length, GLES31.GL_UNSIGNED_SHORT, drawListBuffer);
+        normalBuffer.position(0);
+        GLES31.glEnableVertexAttribArray(mNormalHandle);
+        GLES31.glVertexAttribPointer(mNormalHandle, 3, GLES31.GL_FLOAT, false, normalStride, normalBuffer);
 
-        mMVPMatrixHandle = GLES31.glGetUniformLocation(mProgramHandle, "uMVPMatrix");
+        GLES31.glUniform3f(mLightPosHandle, lightPos[0], lightPos[1], lightPos[2]);
 
+        Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, mModelMatrix, 0);
+        GLES31.glUniformMatrix4fv(mMVMatrixHandle, 1, false, mvpMatrix, 0);
+        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
         GLES31.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
 
+        GLES31.glDrawArrays(GLES31.GL_TRIANGLES, 0, 36);
 
         GLES31.glDisableVertexAttribArray(mPositionHandle);
         GLES31.glDisableVertexAttribArray(mColorHandle);
+        GLES31.glDisableVertexAttribArray(mNormalHandle);
     }
 
     /**
@@ -163,7 +252,7 @@ public class Cube {
     }
 
     /**
-     * Scales the cube on the given
+     * Scales the cube on the given axis
      *
      * @param x
      * @param y

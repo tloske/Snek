@@ -1,5 +1,7 @@
 package entw.app.android.snek;
 
+import android.util.Log;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +56,8 @@ public class GameModel {
     }
 
     public boolean checkCollision() {
+        Log.d("DEBUG", "Snake Length " + mSnake[2]);
+        Log.d("DEBUG", "List Size " + mPrevPos.size());
         if (mSnake[0] < 0 || Math.abs(mSnake[0]) >= mGameBoard.length) {
             if (mWalls)
                 return true;

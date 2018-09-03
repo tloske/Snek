@@ -7,4 +7,18 @@
     <color name="colorSnake">#FF0000FF</color>
     <color name="colorObstacle">#FFFF0000</color>
     <color name="colorFood">#FF00FF00</color>
+
+    <array name="colorScheme1">
+        <item>#FFFFD600</item>
+        <item>#FF0000FF</item>
+        <item>#FF00FF00</item>
+        <item>#FFFF0000</item>
+    </array>
+
+    <array name="colorScheme2">
+        <item>#FF306230</item>
+        <item>#FF8BAC0F</item>
+        <item>#FF9BBC0F</item>
+        <item>#FF0F380F</item>
+    </array>
 </resources>

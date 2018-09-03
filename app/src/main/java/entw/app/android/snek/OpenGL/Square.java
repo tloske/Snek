@@ -2,13 +2,11 @@ package entw.app.android.snek.OpenGL;
 
 import android.opengl.GLES31;
 import android.opengl.Matrix;
-import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-import java.util.Arrays;
 
 public class Square {
 
@@ -93,7 +91,6 @@ public class Square {
         dPos[1] = currentPos[1] - prevPosition[1];
         dPos[2] = currentPos[2] - prevPosition[2];
 
-        Log.d("DEBUG", Arrays.toString(dPos));
         Matrix.setIdentityM(mModelMatrix, 0);
         Matrix.translateM(mModelMatrix, 0, dPos[0], dPos[1], dPos[2]);
 

@@ -109,6 +109,29 @@
         app:layout_constraintLeft_toRightOf="@id/speed_text_view"
         app:layout_constraintTop_toTopOf="@id/speed_text_view" />
 
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/speed_text_view">
+
+        <RadioButton
+            android:id="@+id/color_scheme_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:onClick="onRadioButtonClicked"
+            android:text="ColorScheme 1" />
+
+        <RadioButton
+            android:id="@+id/color_scheme_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:onClick="onRadioButtonClicked"
+            android:text="ColorScheme 2" />
+    </RadioGroup>
 
     <Button
         android:id="@+id/apply"
@@ -118,18 +141,29 @@
         android:text="apply"
         android:textSize="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/cancel"
+        app:layout_constraintLeft_toRightOf="@id/default_settings"
         app:layout_constraintRight_toRightOf="parent" />
 
     <Button
-        android:id="@+id/cancel"
+        android:id="@+id/default_settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="cancel"
-        android:text="cancel"
+        android:onClick="defaultSettings"
+        android:text="default"
+        android:textSize="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@id/back"
+        app:layout_constraintRight_toRightOf="@id/apply" />
+
+    <Button
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="back"
+        android:text="back"
         android:textSize="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/apply" />
+        app:layout_constraintRight_toLeftOf="@id/default_settings" />
 
 </android.support.constraint.ConstraintLayout>

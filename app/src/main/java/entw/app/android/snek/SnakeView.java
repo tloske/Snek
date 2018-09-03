@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
-import android.support.v4.content.res.ResourcesCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 
@@ -21,7 +20,7 @@ public class SnakeView extends android.support.v7.widget.AppCompatImageView {
     private int mColorObstacle;
     private int mRatio;
 
-    public SnakeView(Context context, int ratio) {
+    public SnakeView(Context context, int ratio, int[] colors) {
         super(context);
 
         mRatio = ratio;
@@ -29,10 +28,10 @@ public class SnakeView extends android.support.v7.widget.AppCompatImageView {
         mPaint = new Paint();
 
         mBitmap = Bitmap.createBitmap(getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().heightPixels, Bitmap.Config.ARGB_8888);
-        mColorBackground = ResourcesCompat.getColor(getResources(), R.color.colorBackGround, null);
-        mColorSnake = ResourcesCompat.getColor(getResources(), R.color.colorSnake, null);
-        mColorFood = ResourcesCompat.getColor(getResources(), R.color.colorFood, null);
-        mColorObstacle = ResourcesCompat.getColor(getResources(), R.color.colorObstacle, null);
+        mColorBackground = colors[0];
+        mColorSnake = colors[1];
+        mColorFood = colors[2];
+        mColorObstacle = colors[3];
         mPaint.setColor(mColorBackground);
     }
 
