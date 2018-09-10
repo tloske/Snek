@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -52,6 +53,7 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
     private int count;
     final boolean[] addBody = {false};
     private Save save;
+    private boolean light = false;
 
     public static boolean getWalls() {
         return SnakeActivity.walls;
@@ -226,6 +228,8 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
             walls = save.getWalls();
             obstacleCount = save.getObstacleCount();
             delay = save.getSpeed();
+            light = save.getLight();
+            colorID = save.getColor();
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
@@ -236,7 +240,7 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
         RelativeLayout rl = findViewById(R.id.snek_layout);
         int[] colors = getResources().getIntArray(colorID);
         if (openGL) {
-            mRenderer = new GameRenderer(this, obstacleCount, walls, colors);
+            mRenderer = new GameRenderer(this, obstacleCount, walls, colors, light);
             mGLView = new GameSurface(this, mRenderer);
             mGLView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
             rl.addView(mGLView, 0);
@@ -355,7 +359,7 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
                 if (score != mModel.getScore()) {
                     score = mModel.getScore();
                     updateScore(score);
-                    if (score % 10 == 0 && delay > 10) {
+                    if (score % 5 == 0 && delay > 10) {
                         delay -= 5;
                     }
                 }
@@ -398,8 +402,9 @@ public class SnakeActivity extends AppCompatActivity implements GestureDetector.
                     score = mModel.getScore();
                     updateScore(score);
                     addBody[0] = true;
-                    if (score % 10 == 0 && delay > 10) {
+                    if (score % 5 == 0 && delay > 10) {
                         delay -= 5;
+                        Toast.makeText(getApplicationContext(), "" + delay, Toast.LENGTH_LONG).show();
                     }
                 }
             }

@@ -21,4 +21,11 @@
         <item>#FF9BBC0F</item>
         <item>#FF0F380F</item>
     </array>
+
+    <array name="colorScheme3">
+        <item>#FF343434</item>
+        <item>#FFFFFFFF</item>
+        <item>#FFC0C0C0</item>
+        <item>#FF000000</item>
+    </array>
 </resources>

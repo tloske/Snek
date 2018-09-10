@@ -1,6 +1,7 @@
 uniform mat4 uMVPMatrix;
 uniform mat4 uMVMatrix;
 uniform vec3 uLightPos;
+uniform float uLight;
 
 attribute vec4 aPosition;
 attribute vec4 aColor;

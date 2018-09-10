@@ -15,7 +15,9 @@ public class OptionsActivity extends AppCompatActivity {
     CheckBox cbWalls;
     TextView tvObstacles;
     TextView tvSpeed;
+    CheckBox cbLight;
     private boolean walls;
+    private boolean light;
     private int obstacles;
     private int speed;
     private int color;
@@ -42,12 +44,16 @@ public class OptionsActivity extends AppCompatActivity {
             obstacles = save.getObstacleCount();
             speed = ((100 - save.getSpeed()) / 10) + 1;
             color = save.getColor();
+            light = save.getLight();
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
 
         cbWalls = findViewById(R.id.walls_checkbox);
         cbWalls.setChecked(walls);
+
+        cbLight = findViewById(R.id.light_checkbox);
+        cbLight.setChecked(light);
 
         tvObstacles = findViewById(R.id.obstacles_text_view);
         tvObstacles.setText("Obstacles: " + obstacles);
@@ -61,6 +67,9 @@ public class OptionsActivity extends AppCompatActivity {
                 break;
             case R.array.colorScheme2:
                 ((RadioButton) findViewById(R.id.color_scheme_2)).setChecked(true);
+                break;
+            case R.array.colorScheme3:
+                ((RadioButton) findViewById(R.id.color_scheme_3)).setChecked(true);
                 break;
         }
     }
@@ -92,15 +101,16 @@ public class OptionsActivity extends AppCompatActivity {
     }
 
     public void apply(View view) {
-        SnakeActivity.setDelay(100 - (speed - 1) * 10);
-        SnakeActivity.setObstacleCount(obstacles);
-        SnakeActivity.setWalls(cbWalls.isChecked());
-        SnakeActivity.setColorID(color);
+        //SnakeActivity.setDelay(100 - (speed - 1) * 10);
+        //SnakeActivity.setObstacleCount(obstacles);
+        //SnakeActivity.setWalls(cbWalls.isChecked());
+        //SnakeActivity.setColorID(color);
 
         save.setColor(color);
         save.setObstacleCount(obstacles);
         save.setSpeed(100 - (speed - 1) * 10);
         save.setWalls(cbWalls.isChecked());
+        save.setLight(cbLight.isChecked());
         try {
             SnakeActivity.saveGame(save, getFilesDir(), "snake.save");
         } catch (IOException e) {
@@ -125,6 +135,10 @@ public class OptionsActivity extends AppCompatActivity {
                 if (checked)
                     color = R.array.colorScheme2;
                 break;
+            case R.id.color_scheme_3:
+                if (checked)
+                    color = R.array.colorScheme3;
+                break;
         }
     }
 
@@ -137,14 +151,14 @@ public class OptionsActivity extends AppCompatActivity {
         obstacles = save.getObstacleCount();
         speed = ((100 - save.getSpeed()) / 10) + 1;
         color = save.getColor();
+        light = save.getLight();
 
-        cbWalls = findViewById(R.id.walls_checkbox);
         cbWalls.setChecked(walls);
 
-        tvObstacles = findViewById(R.id.obstacles_text_view);
+        cbLight.setChecked(light);
+
         tvObstacles.setText("Obstacles: " + obstacles);
 
-        tvSpeed = findViewById(R.id.speed_text_view);
         tvSpeed.setText("Speed: " + speed);
 
         switch (color) {
@@ -153,6 +167,9 @@ public class OptionsActivity extends AppCompatActivity {
                 break;
             case R.array.colorScheme2:
                 ((RadioButton) findViewById(R.id.color_scheme_2)).setChecked(true);
+                break;
+            case R.array.colorScheme3:
+                ((RadioButton) findViewById(R.id.color_scheme_3)).setChecked(true);
                 break;
         }
     }

@@ -36,6 +36,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private ArrayList<Cube> mObstacles;
     private ArrayList<Cube> mSnakeBody;
     private ArrayList<Cube> mWall;
+    private boolean mLight;
 
     private int mObstacleCount;
     private boolean mWalls;
@@ -44,11 +45,12 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private float[] colorFood;
     private float[] colorObstacle;
 
-    public GameRenderer(Context contex, int obstacles, boolean walls, int[] colors) {
+    public GameRenderer(Context contex, final int obstacles, final boolean walls, final int[] colors, final boolean light) {
         super();
         mContext = contex;
         mObstacleCount = obstacles;
         mWalls = walls;
+        mLight = light;
         int[] red = new int[colors.length];
         int[] green = new int[colors.length];
         int[] blue = new int[colors.length];
@@ -126,13 +128,13 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         mLightPos = new float[]{0, 0, 0, 1.0f};
 
         // initialize Snake at pos(0,0,0)
-        mSnake = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 0, vertexShader, fragmentShader, colorSnake);
+        mSnake = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 0, vertexShader, fragmentShader, colorSnake, mLight);
         // initialize food at pos(0,0,0)
-        mFood = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 1, vertexShader, fragmentShader, colorFood);
+        mFood = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 1, vertexShader, fragmentShader, colorFood, mLight);
         // initialize multiple obstacles at pos(0,0,0)
         mObstacles = new ArrayList<>();
         for (int i = 0; i < mObstacleCount; i++) {
-            mObstacles.add(new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle));
+            mObstacles.add(new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight));
         }
         // create a new array list that holds the cubes that make up the snakes body
         mSnakeBody = new ArrayList<>();
@@ -150,26 +152,26 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         final float near = 1.0f;
         final float far = 7.0f;
 
-        mGround = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 3, vertexShader, fragmentShader, colorBackground);
+        mGround = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 3, vertexShader, fragmentShader, colorBackground, mLight);
         mGround.scale((2 * ratio) * 10.0f, 20.0f, 0.0f);
         mWall = new ArrayList<>();
         if (mWalls) {
-            Cube tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle);
+            Cube tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
             tmp.scale((2 * ratio) * 10.0f, 0.1f, 1.0f);
             tmp.move(new float[]{0.0f, top * 10.0f, 0.0f});
             mWall.add(tmp);
 
-            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle);
+            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
             tmp.scale((2 * ratio) * 10.0f, 0.1f, 1.0f);
             tmp.move(new float[]{0.0f, bottom * 10.0f, 0.0f});
             mWall.add(tmp);
 
-            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle);
+            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
             tmp.scale(0.1f, 20.0f, 1.0f);
             tmp.move(new float[]{left * 10.0f, 0.0f, 0.0f});
             mWall.add(tmp);
 
-            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle);
+            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
             tmp.scale(0.1f, 20.0f, 1.0f);
             tmp.move(new float[]{right * 10.0f, 0.0f, 0.0f});
             mWall.add(tmp);
@@ -323,7 +325,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
      * @param currentPos the current position of the snake
      */
     public void addToBody(final float[] currentPos) {
-        Cube cube = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 0, vertexShader, fragmentShader, colorSnake);
+        Cube cube = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 0, vertexShader, fragmentShader, colorSnake, mLight);
         cube.move(currentPos);
         mSnakeBody.add(cube);
     }

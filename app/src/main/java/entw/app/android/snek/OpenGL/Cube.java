@@ -8,6 +8,8 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public class Cube {
+
+    private float mLight = 0.0f;
     private float[] prevPosition = new float[3];
     //number of coordinates per vertex in this array
     private static final int faces = 12;
@@ -18,6 +20,7 @@ public class Cube {
     private int mProgramHandle;
     private int mPositionHandle;
     private int mColorHandle;
+    private int mLightHandle;
     private static final int VERTICES_PER_FACE = 3;
     private static final int normalStride = 3 * 4;
     private final float[] mLightPos = new float[]{0.0f, 0.0f, 0.0f, 1.0f};
@@ -34,7 +37,10 @@ public class Cube {
     private FloatBuffer normalBuffer;
     private float color[] = new float[faces * VERTICES_PER_FACE * 4];
 
-    Cube(float[] position, int type, final String vertexShader, final String fragmentShader, final float[] rgba) {
+    Cube(float[] position, int type, final String vertexShader, final String fragmentShader, final float[] rgba, final boolean light) {
+
+        if (light)
+            mLight = 1.0f;
 
         float[] cubeCoords = new float[]{
                 // Front
@@ -196,6 +202,7 @@ public class Cube {
         mMVPMatrixHandle = GLES31.glGetUniformLocation(mProgramHandle, "uMVPMatrix");
         mMVMatrixHandle = GLES31.glGetUniformLocation(mProgramHandle, "uMVMatrix");
         mLightPosHandle = GLES31.glGetUniformLocation(mProgramHandle, "uLightPos");
+        mLightHandle = GLES31.glGetUniformLocation(mProgramHandle, "uLight");
 
         mPositionHandle = GLES31.glGetAttribLocation(mProgramHandle, "aPosition");
         mColorHandle = GLES31.glGetAttribLocation(mProgramHandle, "aColor");
@@ -223,6 +230,7 @@ public class Cube {
         GLES31.glVertexAttribPointer(mNormalHandle, 3, GLES31.GL_FLOAT, false, normalStride, normalBuffer);
 
         GLES31.glUniform3f(mLightPosHandle, lightPos[0], lightPos[1], lightPos[2]);
+        GLES31.glUniform1f(mLightHandle, mLight);
 
         Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, mModelMatrix, 0);
         GLES31.glUniformMatrix4fv(mMVMatrixHandle, 1, false, mvpMatrix, 0);

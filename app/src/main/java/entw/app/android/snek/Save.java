@@ -10,6 +10,16 @@ public class Save implements Serializable {
     private int speed = 100;
     private int color = R.array.colorScheme1;
 
+    private boolean light = false;
+
+    public boolean getLight() {
+        return light;
+    }
+
+    public void setLight(boolean light) {
+        this.light = light;
+    }
+
     public int getHighScore() {
         return highScore;
     }
