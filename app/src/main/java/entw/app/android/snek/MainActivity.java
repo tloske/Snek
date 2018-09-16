@@ -15,6 +15,7 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
 
     // Used to load the 'native-lib' library on application startup.
+    // Not used in the game
     static {
         System.loadLibrary("native-lib");
     }
@@ -56,24 +57,38 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    /**
+     * Starts the Game where the Game is displayed using a Canvas
+     *
+     * @param view
+     */
     public void startGameCanvas(View view) {
         SnakeActivity.setOpenGL(false);
         Intent intent = new Intent(this, SnakeActivity.class);
         startActivity(intent);
     }
 
+    /**
+     *  Starts the game where the game is displayed using OpenGL
+     * @param view
+     */
     public void startGameOpenGL(View view) {
         SnakeActivity.setOpenGL(true);
         Intent intent = new Intent(this, SnakeActivity.class);
         startActivity(intent);
     }
 
+    /**
+     *  Opens the options menu
+     * @param view
+     */
     public void optionsButton(View view) {
         Intent intent = new Intent(this, OptionsActivity.class);
         startActivity(intent);
     }
 
     /**
+     * Not used in the Game
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
      */

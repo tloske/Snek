@@ -2,6 +2,9 @@ package entw.app.android.snek;
 
 import java.io.Serializable;
 
+/**
+ * Contains all the variables that need to be saved
+ */
 public class Save implements Serializable {
 
     private int highScore = 0;

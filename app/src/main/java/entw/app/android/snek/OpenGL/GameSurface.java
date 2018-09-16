@@ -3,7 +3,9 @@ package entw.app.android.snek.OpenGL;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 
-
+/**
+ * The GameSurface on which the OpenGL scene is drawn
+ */
 public class GameSurface extends GLSurfaceView {
 
 

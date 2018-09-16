@@ -37,6 +37,14 @@ public class Cube {
     private FloatBuffer normalBuffer;
     private float color[] = new float[faces * VERTICES_PER_FACE * 4];
 
+    /**
+     * @param position       the position where the cube should be drawn
+     * @param type           the type of cube(food,obstacle,snake) no longer used
+     * @param vertexShader   the vertex shader code
+     * @param fragmentShader the fragment shader code
+     * @param rgba           the color information
+     * @param light          if there is a light in the scene
+     */
     Cube(float[] position, int type, final String vertexShader, final String fragmentShader, final float[] rgba, final boolean light) {
 
         if (light)
@@ -98,41 +106,6 @@ public class Cube {
             color[i + 2] = rgba[2];
             color[i + 3] = rgba[3];
         }
-//        switch (type) {
-//            case 0: //Snake and Body
-//                for (int i = 0; i < color.length; i += 4) {
-//                    color[i] = 0.0f;        // Red value of each vertex
-//                    color[i + 1] = 1.0f;    // Green value of each vertex
-//                    color[i + 2] = 0.0f;    // Blue value of each vertex
-//                    color[i + 3] = 1.0f;
-//                }
-//                break;
-//            case 1: //Food
-//                for (int i = 0; i < color.length; i += 4) {
-//                    color[i] = 0.0f;
-//                    color[i + 1] = 0.0f;
-//                    color[i + 2] = 1.0f;
-//                    color[i + 3] = 1.0f;
-//                }
-//                break;
-//            case 2: //Obstacles and Walls
-//                for (int i = 0; i < color.length; i += 4) {
-//                    color[i] = 1.0f;
-//                    color[i + 1] = 0.0f;
-//                    color[i + 2] = 0.0f;
-//                    color[i + 3] = 1.0f;
-//                }
-//                break;
-//            case 3: //Ground
-//                for (int i = 0; i < color.length; i += 4) {
-//                    color[i] = 1.0f;
-//                    color[i + 1] = 1.0f;
-//                    color[i + 2] = 0.0f;
-//                    color[i + 3] = 1.0f;
-//                }
-//            default:
-//                break;
-//        }
 
         float[] normals = new float[]{
                 // Front
@@ -211,7 +184,12 @@ public class Cube {
         Matrix.setIdentityM(mModelMatrix, 0);
     }
 
-
+    /**
+     * Draws the cube in the scene
+     * @param viewMatrix    the viewMatrix
+     * @param projectionMatrix  the projectionMatrix
+     * @param lightPos  the position of the light
+     */
     public void draw(final float[] viewMatrix, final float[] projectionMatrix, final float[] lightPos) {
         float[] mvpMatrix = new float[16];
 
@@ -246,6 +224,7 @@ public class Cube {
 
     /**
      * Moves the cube to the given position by calculating the difference between the old and new position
+     * and creating a translation matrix
      *
      * @param currentPos the current position of the cube in the model
      */
@@ -262,9 +241,9 @@ public class Cube {
     /**
      * Scales the cube on the given axis
      *
-     * @param x
-     * @param y
-     * @param z
+     * @param x x-Axis
+     * @param y y-Axis
+     * @param z z-Axis
      */
     public void scale(float x, float y, float z) {
         Matrix.scaleM(mModelMatrix, 0, x, y, z);

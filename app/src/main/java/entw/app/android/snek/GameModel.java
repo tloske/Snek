@@ -1,7 +1,5 @@
 package entw.app.android.snek;
 
-import android.util.Log;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +13,11 @@ public class GameModel {
     private int mObstacleCount;
     private boolean mWalls;
 
+    /**
+     * @param ratio     The display ratio
+     * @param obstacles the amount of obstacles
+     * @param walls     if walls are part of the game or not
+     */
     GameModel(int ratio, int obstacles, boolean walls) {
         mScore = 0;
         mSnake[0] = ratio;
@@ -29,6 +32,9 @@ public class GameModel {
         spawnObstacles();
     }
 
+    /**
+     * Moves the snake in the direction it is currently traveling
+     */
     public void move() {
         mPrevPos.addFirst(new int[]{mSnake[0], mSnake[1]});
 
@@ -39,11 +45,17 @@ public class GameModel {
             mPrevPos.removeLast();
     }
 
+    /**
+     * Spawns food in a random position on the board
+     */
     private void spawnFood() {
         int pos[] = randPos();
         mGameBoard[pos[0]][pos[1]] = 1;
     }
 
+    /**
+     * Spawns obstacles up to the obstacle count on the board
+     */
     private void spawnObstacles() {
         for (int i = 0; i < mObstacleCount; i++) {
             int pos[];
@@ -55,9 +67,12 @@ public class GameModel {
         }
     }
 
+    /**
+     * Checks if the snake collides with a wall, an obstacle, food or with it self
+     *
+     * @return if the snake collided if anything
+     */
     public boolean checkCollision() {
-        Log.d("DEBUG", "Snake Length " + mSnake[2]);
-        Log.d("DEBUG", "List Size " + mPrevPos.size());
         if (mSnake[0] < 0 || Math.abs(mSnake[0]) >= mGameBoard.length) {
             if (mWalls)
                 return true;
@@ -91,6 +106,10 @@ public class GameModel {
         return false;
     }
 
+    /**
+     * Calculates an array containing a position coordinates using the size of the board
+     * @return the array containing coordinates
+     */
     private int[] randPos() {
         int[] pos = new int[2];
         pos[0] = (int) (Math.random() * mGameBoard.length);
@@ -98,26 +117,51 @@ public class GameModel {
         return pos;
     }
 
+    /**
+     * Returns the current score
+     * @return the score
+     */
     public int getScore() {
         return mScore;
     }
 
+    /**
+     * Returns the current position of the snake
+     * @return the snakes position
+     */
     public int[] getPos() {
         return new int[]{mSnake[0], mSnake[1]};
     }
 
+    /**
+     * An array that represents the board and contains the information where the food and obstacles are
+     * @return an array representation of the board
+     */
     public int[][] getBoard() {
         return mGameBoard;
     }
 
+    /**
+     * Sets the direction the snake is facing and traveling
+     * @param direction the direction
+     */
     public void setDirection(int[] direction) {
         this.direction = direction;
     }
 
+    /**
+     * Gets all the previous position of the snake, used to draw the body of the snake
+     * @return a deque containing the previous positions of the snake
+     */
     public ArrayDeque<int[]> getPrevPos() {
         return mPrevPos;
     }
 
+    /**
+     * Returns the given coordinates and returns them as coordinates in the OpenGL context
+     * @param coords    the coordinates on the board
+     * @return OpenGL Coordinates
+     */
     public float[] OpenGLCoords(int coords[]) {
         float[] pos = new float[3];
         pos[0] = (coords[0] - (mGameBoard.length / 2)) / 10.0f;
@@ -126,6 +170,11 @@ public class GameModel {
         return pos;
     }
 
+    /**
+     * Returns OpenGL coordinates for an ArrayList of coordinates
+     * @param positions Deque containing coordinates
+     * @return a list with OpenGL coordinates
+     */
     public ArrayList<float[]> OpenGLCoords(ArrayDeque<int[]> positions) {
         ArrayList<float[]> newList = new ArrayList<>();
 
@@ -134,5 +183,14 @@ public class GameModel {
         }
 
         return newList;
+    }
+
+    /**
+     * Returns the current size of the snake
+     *
+     * @return size of the snake
+     */
+    public int getSnakeSize() {
+        return mSnake[2];
     }
 }

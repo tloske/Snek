@@ -8,6 +8,9 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+/**
+ * Class no longer used was replaced by cube class
+ */
 public class Square {
 
     private float[] prevPosition = new float[3];

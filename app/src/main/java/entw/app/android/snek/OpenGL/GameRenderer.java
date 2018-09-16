@@ -20,8 +20,8 @@ import entw.app.android.snek.R;
 
 public class GameRenderer implements GLSurfaceView.Renderer {
 
-    String vertexShader;
-    String fragmentShader;
+    private String vertexShader;
+    private String fragmentShader;
 
     //mMVPMatrix is an abbreviation for "Model View Projection Matrix"
     private final float[] mProjectionMatrix = new float[16];
@@ -45,6 +45,13 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private float[] colorFood;
     private float[] colorObstacle;
 
+    /**
+     * @param contex    the context of the app
+     * @param obstacles the amount of obstacles in the game
+     * @param walls     if walls should be drawn or not
+     * @param colors    the colors used for the objects
+     * @param light     if light is used in the calculations or not
+     */
     public GameRenderer(Context contex, final int obstacles, final boolean walls, final int[] colors, final boolean light) {
         super();
         mContext = contex;
@@ -107,6 +114,44 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         return programHandle;
     }
 
+    /**
+     * Compiles the shader from the given shaderCode
+     *
+     * @param type       the type of shader (vertex || fragment)
+     * @param shaderCode the shader code
+     * @return the shader handle
+     */
+    public static int compileShader(int type, String shaderCode) {
+
+        //create a vertex shader type(GLES31.GL_VERTEX_SHADER)
+        //or a fragment shader type (GLES31.GL_FRAGMENT_SHADER)
+        int shaderHandle = GLES31.glCreateShader(type);
+
+        if (shaderHandle != 0) {
+            //add the source code to the shader and compile it
+            GLES31.glShaderSource(shaderHandle, shaderCode);
+            GLES31.glCompileShader(shaderHandle);
+
+            final int[] compileStatus = new int[1];
+            GLES31.glGetShaderiv(shaderHandle, GLES31.GL_COMPILE_STATUS, compileStatus, 0);
+
+            if (compileStatus[0] == 0) {
+                GLES31.glDeleteShader(shaderHandle);
+                shaderHandle = 0;
+            }
+
+            if (shaderHandle == 0)
+                throw new RuntimeException("Error creating shader. Type: " + type);
+        }
+        return shaderHandle;
+    }
+
+    /**
+     * Gets called when the OpenGL surface has been created
+     * Creates the lookAt Matrix, loads the shader code, creates the objects that are in the scene at the beginning of the game
+     * @param gl10
+     * @param eglConfig
+     */
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
         //Set the background frame color
@@ -118,6 +163,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         final float lookX = 0.0f, lookY = 0.0f, lookZ = 0.0f;
         final float upX = 0.0f, upY = 1.0f, upZ = 0.0f;
 
+        // Sets the lookAt Matrix so that the camera sits at position (0,0,3)
         Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
 //        Matrix.rotateM(mViewMatrix, 0, 45.0f, 1.0f, 0.0f, 0.0f);
 
@@ -138,51 +184,6 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         }
         // create a new array list that holds the cubes that make up the snakes body
         mSnakeBody = new ArrayList<>();
-    }
-
-    @Override
-    public void onSurfaceChanged(GL10 gl10, int i, int i1) {
-        GLES31.glViewport(0, 0, i, i1);
-
-        float ratio = (float) i / i1;
-        final float left = -ratio;
-        final float right = ratio;
-        final float top = 1.0f;
-        final float bottom = -1.0f;
-        final float near = 1.0f;
-        final float far = 7.0f;
-
-        mGround = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 3, vertexShader, fragmentShader, colorBackground, mLight);
-        mGround.scale((2 * ratio) * 10.0f, 20.0f, 0.0f);
-        mWall = new ArrayList<>();
-        if (mWalls) {
-            Cube tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
-            tmp.scale((2 * ratio) * 10.0f, 0.1f, 1.0f);
-            tmp.move(new float[]{0.0f, top * 10.0f, 0.0f});
-            mWall.add(tmp);
-
-            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
-            tmp.scale((2 * ratio) * 10.0f, 0.1f, 1.0f);
-            tmp.move(new float[]{0.0f, bottom * 10.0f, 0.0f});
-            mWall.add(tmp);
-
-            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
-            tmp.scale(0.1f, 20.0f, 1.0f);
-            tmp.move(new float[]{left * 10.0f, 0.0f, 0.0f});
-            mWall.add(tmp);
-
-            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
-            tmp.scale(0.1f, 20.0f, 1.0f);
-            tmp.move(new float[]{right * 10.0f, 0.0f, 0.0f});
-            mWall.add(tmp);
-        }
-
-        //this projection matrix is applied to object coordinates
-        //in the onDrawFrame() method
-
-        Matrix.orthoM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
-//        Matrix.frustumM(mProjectionMatrix, 0, right, left, bottom, top, near, far);
-        Matrix.multiplyMM(vpMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
     }
 
     /**
@@ -266,35 +267,55 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     }
 
     /**
-     * Compiles the shader from the given shaderCode
-     *
-     * @param type       the type of shader (vertex || fragment)
-     * @param shaderCode the shader code
-     * @return
+     * Gets called every time the surface changes
+     * Creates the ground and the walls of the game and the projectionMatrix
+     * @param gl10
+     * @param i the pixel width of the display
+     * @param i1    the pixel height of the display
      */
-    public static int compileShader(int type, String shaderCode) {
+    @Override
+    public void onSurfaceChanged(GL10 gl10, int i, int i1) {
+        GLES31.glViewport(0, 0, i, i1);
 
-        //create a vertex shader type(GLES31.GL_VERTEX_SHADER)
-        //or a fragment shader type (GLES31.GL_FRAGMENT_SHADER)
-        int shaderHandle = GLES31.glCreateShader(type);
+        float ratio = (float) i / i1;
+        final float left = -ratio;
+        final float right = ratio;
+        final float top = 1.0f;
+        final float bottom = -1.0f;
+        final float near = 1.0f;
+        final float far = 7.0f;
 
-        if (shaderHandle != 0) {
-            //add the source code to the shader and compile it
-            GLES31.glShaderSource(shaderHandle, shaderCode);
-            GLES31.glCompileShader(shaderHandle);
+        mGround = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 3, vertexShader, fragmentShader, colorBackground, mLight);
+        mGround.scale((2 * ratio) * 10.0f, 20.0f, 0.0f);
+        mWall = new ArrayList<>();
+        if (mWalls) {
+            Cube tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
+            tmp.scale((2 * ratio) * 10.0f, 0.1f, 1.0f);
+            tmp.move(new float[]{0.0f, top * 10.0f, 0.0f});
+            mWall.add(tmp);
 
-            final int[] compileStatus = new int[1];
-            GLES31.glGetShaderiv(shaderHandle, GLES31.GL_COMPILE_STATUS, compileStatus, 0);
+            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
+            tmp.scale((2 * ratio) * 10.0f, 0.1f, 1.0f);
+            tmp.move(new float[]{0.0f, bottom * 10.0f, 0.0f});
+            mWall.add(tmp);
 
-            if (compileStatus[0] == 0) {
-                GLES31.glDeleteShader(shaderHandle);
-                shaderHandle = 0;
-            }
+            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
+            tmp.scale(0.1f, 20.0f, 1.0f);
+            tmp.move(new float[]{left * 10.0f, 0.0f, 0.0f});
+            mWall.add(tmp);
 
-            if (shaderHandle == 0)
-                throw new RuntimeException("Error creating shader. Type: " + type);
+            tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
+            tmp.scale(0.1f, 20.0f, 1.0f);
+            tmp.move(new float[]{right * 10.0f, 0.0f, 0.0f});
+            mWall.add(tmp);
         }
-        return shaderHandle;
+
+        //this projection matrix is applied to object coordinates
+        //in the onDrawFrame() method
+
+        Matrix.orthoM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
+//        Matrix.frustumM(mProjectionMatrix, 0, right, left, bottom, top, near, far);
+        Matrix.multiplyMM(vpMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
     }
 
     /**
@@ -328,5 +349,14 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         Cube cube = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 0, vertexShader, fragmentShader, colorSnake, mLight);
         cube.move(currentPos);
         mSnakeBody.add(cube);
+    }
+
+    /**
+     * Returns the size of the snake in the openGL context
+     *
+     * @return snake size
+     */
+    public int getSnakeSize() {
+        return mSnakeBody.size();
     }
 }

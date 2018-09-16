@@ -165,7 +165,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Light"
+        android:text="Light (OpenGL)"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@id/default_settings"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -178,7 +178,7 @@
         android:layout_height="wrap_content"
         android:onClick="apply"
         android:text="apply"
-        android:textSize="32dp"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/default_settings"
         app:layout_constraintRight_toRightOf="parent" />
@@ -189,7 +189,7 @@
         android:layout_height="wrap_content"
         android:onClick="defaultSettings"
         android:text="default"
-        android:textSize="32dp"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="@id/back"
         app:layout_constraintRight_toRightOf="@id/apply" />
@@ -200,7 +200,7 @@
         android:layout_height="wrap_content"
         android:onClick="back"
         android:text="back"
-        android:textSize="32dp"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/default_settings" />

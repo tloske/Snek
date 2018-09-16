@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 
 public class SnakeView extends android.support.v7.widget.AppCompatImageView {
 
@@ -20,6 +19,11 @@ public class SnakeView extends android.support.v7.widget.AppCompatImageView {
     private int mColorObstacle;
     private int mRatio;
 
+    /**
+     * @param context the context
+     * @param ratio   the display ratio
+     * @param colors  the colors used in the game
+     */
     public SnakeView(Context context, int ratio, int[] colors) {
         super(context);
 
@@ -65,14 +69,6 @@ public class SnakeView extends android.support.v7.widget.AppCompatImageView {
         mCanvas.drawLine(0, 0, 0, bitHeight, mPaint);
         mCanvas.drawLine(0, bitHeight, bitWidth, bitHeight, mPaint);
         mCanvas.drawLine(bitWidth, 0, bitWidth, bitHeight + 1, mPaint);
-
-
-        //        for (int i = 4; i < bitWidth; i += 4) {
-//            mCanvas.drawLine(i, 0, i, bitHeight, mPaint);
-//        }
-//        for (int j = 4; j < bitHeight; j += 4) {
-//            mCanvas.drawLine(0, j, bitWidth, j, mPaint);
-//        }
     }
 
     /**
@@ -116,7 +112,6 @@ public class SnakeView extends android.support.v7.widget.AppCompatImageView {
 
         int height = getHeight();
         int width = getWidth();
-        Log.d("DEBUG", "draw: height:" + height + " width: " + width);
         if (!(height == 0 || width == 0)) {
             mBitmap = Bitmap.createScaledBitmap(mBitmap, width, height, false);
             invalidate();

@@ -30,11 +30,7 @@ public class OptionsActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.toolbar);
         setActionBar(myToolbar);
 
-//        walls = SnakeActivity.getWalls();
-//        obstacles = SnakeActivity.getObstacleCount();
-//        speed = ((100 - SnakeActivity.getDelay()) / 10) + 1;
-//        color = SnakeActivity.getColorID();
-
+        // Loads all the Options from the save file
         try {
             save = SnakeActivity.loadSave(getFilesDir(), "snake.save");
             if (save == null) {
@@ -49,6 +45,10 @@ public class OptionsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+
+        /*
+        Sets all the options in the menu using the data from the save file
+         */
         cbWalls = findViewById(R.id.walls_checkbox);
         cbWalls.setChecked(walls);
 
@@ -74,18 +74,32 @@ public class OptionsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Increases the obstacles count by 1
+     *
+     * @param view
+     */
     public void increaseObstacles(View view) {
         obstacles++;
         tvObstacles.setText("Obstacles: " + obstacles);
     }
 
+    /**
+     * Decreases the obstacle count by 1
+     * @param view
+     */
     public void decreaseObstacles(View view) {
-        if (obstacles >= 0) {
+        if (obstacles > 0) {
             obstacles--;
             tvObstacles.setText("Obstacles: " + obstacles);
         }
     }
 
+    /**
+     * Increases the speed of the snake by 1 which decreases the gameloops delay by 10
+     * Speed can't by higher than 10
+     * @param view
+     */
     public void increaseSpeed(View view) {
         if (speed < 10) {
             speed++;
@@ -93,6 +107,11 @@ public class OptionsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Decreases the speed of the snake by 1 which increases the gameloops delay by 10
+     * Speed cant by less than 1
+     * @param view
+     */
     public void decreaseSpeed(View view) {
         if (speed > 1) {
             speed--;
@@ -100,12 +119,11 @@ public class OptionsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Applys the changes an saves the options
+     * @param view
+     */
     public void apply(View view) {
-        //SnakeActivity.setDelay(100 - (speed - 1) * 10);
-        //SnakeActivity.setObstacleCount(obstacles);
-        //SnakeActivity.setWalls(cbWalls.isChecked());
-        //SnakeActivity.setColorID(color);
-
         save.setColor(color);
         save.setObstacleCount(obstacles);
         save.setSpeed(100 - (speed - 1) * 10);
@@ -118,10 +136,18 @@ public class OptionsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Returns to the previous screen
+     * @param view
+     */
     public void back(View view) {
         finish();
     }
 
+    /**
+     * Sets the color scheme depending on which radio button has been checked
+     * @param view
+     */
     public void onRadioButtonClicked(View view) {
 
         boolean checked = ((RadioButton) view).isChecked();
@@ -142,6 +168,10 @@ public class OptionsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Creates a new savegame which contain default settings and loads these settings
+     * @param view
+     */
     public void defaultSettings(View view) {
         int score = save.getHighScore();
         save = new Save();
