@@ -88,8 +88,6 @@ public class GameRenderer implements GLSurfaceView.Renderer {
             GLES31.glAttachShader(programHandle, vertexShaderHandle);
             GLES31.glAttachShader(programHandle, fragmentShaderHandle);
 
-            // No idea what this does
-
             if (attributes != null) {
                 final int size = attributes.length;
                 for (int i = 0; i < size; i++) {
@@ -280,8 +278,8 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         float ratio = (float) i / i1;
         final float left = -ratio;
         final float right = ratio;
-        final float top = 1.0f;
-        final float bottom = -1.0f;
+        final float top = 1.05f;
+        final float bottom = -1.05f;
         final float near = 1.0f;
         final float far = 7.0f;
 
@@ -300,12 +298,12 @@ public class GameRenderer implements GLSurfaceView.Renderer {
             mWall.add(tmp);
 
             tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
-            tmp.scale(0.1f, 20.0f, 1.0f);
+            tmp.scale(0.1f, 21.0f, 1.0f);
             tmp.move(new float[]{left * 10.0f, 0.0f, 0.0f});
             mWall.add(tmp);
 
             tmp = new Cube(new float[]{0.0f, 0.0f, 0.0f}, 2, vertexShader, fragmentShader, colorObstacle, mLight);
-            tmp.scale(0.1f, 20.0f, 1.0f);
+            tmp.scale(0.1f, 21.0f, 1.0f);
             tmp.move(new float[]{right * 10.0f, 0.0f, 0.0f});
             mWall.add(tmp);
         }
